@@ -1,0 +1,258 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+    --bg-color: #0d1117;
+    --card-bg: rgba(22, 27, 34, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --accent-color: #58a6ff;
+    --accent-hover: #1f6feb;
+    --ai-color: #2ea043;
+    --ai-bg: rgba(46, 160, 67, 0.1);
+    --glass-blur: 10px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+    background-image: radial-gradient(circle at top right, rgba(88, 166, 255, 0.15), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(46, 160, 67, 0.1), transparent 40%);
+    background-attachment: fixed;
+}
+
+/* Glassmorphism Container */
+.glass-panel {
+    background: var(--card-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+    background: rgba(13, 17, 23, 0.8);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--accent-color);
+}
+
+/* Search Bar */
+.search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 30px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.search-input:focus {
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 4px 14px 0 rgba(88, 166, 255, 0.39);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(88, 166, 255, 0.23);
+}
+
+.btn-ai {
+    background: transparent;
+    border: 1px solid var(--ai-color);
+    color: var(--ai-color);
+}
+
+.btn-ai:hover {
+    background: var(--ai-color);
+    color: #fff;
+}
+
+/* Main Layout */
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Cards / Lists */
+.question-card {
+    margin-bottom: 20px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.question-title {
+    font-size: 1.25rem;
+    color: var(--accent-color);
+    margin: 0 0 10px 0;
+}
+
+.question-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Detail View */
+.detail-header {
+    margin-bottom: 30px;
+}
+
+.detail-title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.detail-content {
+    font-size: 1.1rem;
+    white-space: pre-wrap;
+}
+
+/* Answers */
+.answers-section {
+    margin-top: 40px;
+}
+
+.answer-card {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.answer-card.ai-generated {
+    border-left: 4px solid var(--ai-color);
+    background: var(--ai-bg);
+}
+
+.ai-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    background: var(--ai-color);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 10px rgba(46, 160, 67, 0.4);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.2);
+    color: #1f6feb;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    border-color: var(--accent-color);
+    outline: none;
+}
+
+/* Fix for Select Dropdown Options (Windows overrides backgrounds, so we force text to be dark) */
+.form-control option {
+    background-color: #0f0808;
+    color: #1f6feb;
+}
+
+/* Alerts */
+.alert {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background: rgba(46, 160, 67, 0.2);
+    border: 1px solid var(--ai-color);
+    color: #fff;
+}

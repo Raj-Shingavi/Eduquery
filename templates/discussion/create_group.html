@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 800px; margin: 0 auto; margin-bottom: 40px;">
+    <h2 style="color: var(--accent-color); margin-top: 0;">Found a New Community</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 25px;">Establish a specialized environment for users to network and discuss targeted topics.</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Community Name *</label>
+                {{ form.name }}
+            </div>
+            
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Description *</label>
+                {{ form.description }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Category / Subject *</label>
+                {{ form.category }}
+            </div>
+            
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Keywords / Tags (Comma Separated)</label>
+                {{ form.tags }}
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 10px;">
+                <h4 style="margin: 0 0 15px 0; color: var(--text-primary);">Rules & Aesthetics</h4>
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Group Icon / Banner Image</label>
+                {{ form.icon }}
+                <small style="color: var(--text-secondary);">Optional. Formats: JPG, PNG, GIF.</small>
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Community Rules & Guidelines</label>
+                {{ form.rules }}
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 10px;">
+                <h4 style="margin: 0 0 15px 0; color: var(--text-primary);">Administrative Constraints</h4>
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Who can Post Doubts?</label>
+                {{ form.can_post }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Who can Comment/Answer?</label>
+                {{ form.can_comment }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Preferred Structure</label>
+                {{ form.discussion_format }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-primary); font-weight: 500;">Max Member Limit</label>
+                {{ form.max_members }}
+            </div>
+            
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 30px; font-size: 1.1rem; padding: 15px;">Launch Community</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 500px; margin: 0 auto;">
+    <h2 style="color: var(--accent-color); text-align: center; margin-top: 0;">Create an Account</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small style="color: var(--text-secondary); display: block; margin-top: 5px;">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                    <div style="color: #ff7b72; font-size: 0.85rem; margin-top: 5px;">
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Register</button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--text-secondary);">
+        Already have an account? <a href="{% url 'login' %}" style="color: var(--accent-color);">Log in</a>
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2>AI Semantic Search Results</h2>
+    <p style="color: var(--text-secondary);">Showing results for meaning: <strong>"{{ query }}"</strong></p>
+</div>
+
+{% if results %}
+    {% for q in results %}
+        <a href="{% url 'question_detail' q.id %}" class="glass-panel question-card">
+            <h3 class="question-title">{{ q.title }}</h3>
+            <p>{{ q.content|truncatechars:150 }}</p>
+            <div class="question-meta">
+                <span>Asked by @{{ q.author.username }}</span>
+                <span>{{ q.created_at|date:"M d, Y H:i" }}</span>
+            </div>
+        </a>
+    {% endfor %}
+{% else %}
+    <div class="glass-panel" style="text-align: center; padding: 40px;">
+        <p style="font-size: 1.2rem;">Hmm, we couldn't find any questions with a similar meaning.</p>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">Why not ask it yourself?</p>
+        <a href="{% url 'post_question' %}" class="btn btn-primary">Ask "{{ query }}"</a>
+    </div>
+{% endif %}
+
+{% endblock %}

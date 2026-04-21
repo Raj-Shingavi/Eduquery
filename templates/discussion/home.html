@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Recent Queries</h2>
+
+{% if questions %}
+    {% for q in questions %}
+        <a href="{% url 'question_detail' q.id %}" class="glass-panel question-card">
+            <h3 class="question-title">{{ q.title }}</h3>
+            <p>{{ q.content|truncatechars:150 }}</p>
+            <div class="question-meta">
+                <span>Asked by @{{ q.author.username }}</span>
+                <span>{{ q.created_at|date:"M d, Y H:i" }}</span>
+            </div>
+        </a>
+    {% endfor %}
+{% else %}
+    <div class="glass-panel" style="text-align: center; padding: 40px;">
+        <p>No questions have been asked yet. Be the first!</p>
+        <a href="{% url 'post_question' %}" class="btn btn-primary">Ask a Question</a>
+    </div>
+{% endif %}
+
+{% endblock %}

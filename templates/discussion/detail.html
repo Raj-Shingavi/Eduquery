@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="detail-header">
+    <div class="glass-panel">
+        <h1 class="detail-title" style="color: var(--accent-color); margin-top: 0;">{{ question.title }}</h1>
+        <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+            Asked by @{{ question.author.username }} • {{ question.created_at|date:"M d, Y H:i" }}
+        </div>
+        <div class="detail-content">{{ question.content }}</div>
+    </div>
+</div>
+
+<div class="answers-section">
+    <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px;">Discussion</h3>
+    
+    {% if not answers %}
+        <div class="alert" style="background: rgba(255, 255, 255, 0.05); border-color: var(--border-color);">
+            No answers yet. Check back later or add your own!
+        </div>
+    {% else %}
+        {% for a in answers %}
+            <div class="glass-panel answer-card">
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">
+                    @{{ a.author.username }}
+                    • {{ a.created_at|date:"M d, Y H:i" }}
+                </div>
+                <div class="detail-content" style="margin-bottom: 15px;">{{ a.content }}</div>
+                
+                <div style="display: flex; align-items: center; gap: 15px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 10px;">
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">
+                        <svg style="vertical-align: middle; margin-right: 4px;" width="16" height="16" viewBox="0 0 24 24" fill="{% if user in a.likes.all %}var(--ai-color){% else %}none{% endif %}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                        {{ a.likes.count }} Teacher Endorsements
+                    </span>
+
+                    {% if user.is_authenticated and user.role == 'teacher' %}
+                        <form action="{% url 'toggle_like' a.id %}" method="post" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-ai" style="padding: 4px 12px; font-size: 0.8rem;">
+                                {% if user in a.likes.all %}
+                                    Undo Endorse
+                                {% else %}
+                                    Endorse Answer
+                                {% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="glass-panel" style="margin-top: 40px;">
+        <h4 style="margin-top: 0;">Add your answer</h4>
+        {% if user.is_authenticated %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.content }}
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Submit Answer</button>
+            </form>
+        {% else %}
+            <p>Please <a href="{% url 'login' %}" style="color: var(--accent-color);">login</a> to participate in the discussion.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
