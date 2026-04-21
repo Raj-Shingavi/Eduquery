@@ -91,7 +91,7 @@ def toggle_like(request, answer_id):
         
     answer = get_object_or_404(Answer, id=answer_id)
     
-    if request.user in answer.likes.all():
+    if answer.likes.filter(id=request.user.id).exists():
         answer.likes.remove(request.user)
     else:
         answer.likes.add(request.user)
@@ -124,7 +124,7 @@ def group_detail(request, group_id):
     questions = group.questions.select_related('author').order_by('-created_at')
     polls = group.polls.select_related('author').prefetch_related('options').order_by('-created_at')
 
-    is_member = request.user.is_authenticated and request.user in group.members.all()
+    is_member = group.members.filter(id=request.user.id).exists()
     
     return render(request, 'discussion/group_detail.html', {
         'group': group,
