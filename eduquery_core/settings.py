@@ -61,7 +61,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'eduquery_db',   # You must CREATE DATABASE eduquery_db; in MySQL
         'USER': 'root',          # Replace with your MySQL username
-        'PASSWORD': 'root123',          # Replace with your MySQL password
+        'PASSWORD': 'password',          # Replace with your MySQL password
         'HOST': 'localhost',
         'PORT': '3307',
     }
