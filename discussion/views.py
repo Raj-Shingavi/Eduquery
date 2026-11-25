@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Q
+from django.db import transaction
 from .models import Question, Answer, Group, Poll, PollOption, PollVote
 from .forms import QuestionForm, AnswerForm, CustomUserCreationForm, GroupForm, PollCreationForm
 
@@ -27,6 +28,15 @@ def post_question(request, group_id=None):
     group = None
     if group_id:
         group = get_object_or_404(Group, id=group_id)
+        # Check membership: user must be a member to post in a community
+        if not group.members.filter(id=request.user.id).exists():
+            messages.error(request, 'You must join this community before posting doubts.')
+            return redirect('group_detail', group_id=group.id)
+
+        # Check can_post permission: if admin-only, only creator, teachers, or staff can post
+        if group.can_post == 'admin' and request.user != group.creator and request.user.role != 'teacher' and not request.user.is_staff:
+            messages.error(request, 'Posting in this community is restricted to administrators and faculty.')
+            return redirect('group_detail', group_id=group.id)
         
     if request.method == 'POST':
         form = QuestionForm(request.POST)
@@ -50,10 +60,25 @@ def question_detail(request, question_id):
     question = get_object_or_404(Question.objects.select_related('author', 'group'), id=question_id)
     answers = question.answers.select_related('author').annotate(like_count=Count('likes')).order_by('-like_count', 'created_at')
     
+    # Enforce can_comment permission when question is scoped to a group
+    can_answer = True
+    if question.group and question.group.can_comment == 'restricted':
+        if not request.user.is_authenticated:
+            can_answer = False
+        else:
+            is_member = question.group.members.filter(id=request.user.id).exists()
+            is_privileged = (request.user == question.group.creator or request.user.role == 'teacher' or request.user.is_staff)
+            if not is_member and not is_privileged:
+                can_answer = False
+
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return redirect('login')
             
+        if not can_answer:
+            messages.error(request, 'Commenting on this doubt is restricted to community members and faculty.')
+            return redirect('question_detail', question_id=question.id)
+
         form = AnswerForm(request.POST)
         if form.is_valid():
             answer = form.save(commit=False)
@@ -67,7 +92,8 @@ def question_detail(request, question_id):
     return render(request, 'discussion/detail.html', {
         'question': question,
         'answers': answers,
-        'form': form
+        'form': form,
+        'can_answer': can_answer,
     })
 
 def register(request):
@@ -153,23 +179,29 @@ def leave_group(request, group_id):
 @login_required
 def create_poll(request, group_id):
     group = get_object_or_404(Group, id=group_id)
-    if not request.user in group.members.all():
-        messages.error(request, "You must join to create a poll.")
+    if not group.members.filter(id=request.user.id).exists():
+        messages.error(request, "You must join this community to create a poll.")
         return redirect('group_detail', group_id=group.id)
         
+    is_privileged = (request.user == group.creator or request.user.role == 'teacher' or request.user.is_staff)
+    if group.discussion_format != 'poll' and not is_privileged:
+        messages.error(request, "Poll creation is not enabled for members in this community.")
+        return redirect('group_detail', group_id=group.id)
+
     if request.method == 'POST':
         form = PollCreationForm(request.POST)
         if form.is_valid():
-            poll = form.save(commit=False)
-            poll.group = group
-            poll.author = request.user
-            poll.save()
-            
-            # Map the newline separated options
-            options = form.cleaned_data['options']
-            for opt_text in options:
-                PollOption.objects.create(poll=poll, text=opt_text)
+            with transaction.atomic():
+                poll = form.save(commit=False)
+                poll.group = group
+                poll.author = request.user
+                poll.save()
                 
+                # Map the newline separated options
+                options = form.cleaned_data['options']
+                for opt_text in options:
+                    PollOption.objects.create(poll=poll, text=opt_text)
+                    
             messages.success(request, "Poll deployed successfully!")
             return redirect('group_detail', group_id=group.id)
     else:
@@ -179,20 +211,25 @@ def create_poll(request, group_id):
 @login_required
 def vote_poll(request, poll_id):
     if request.method == 'POST':
-        poll = get_object_or_404(Poll, id=poll_id)
+        poll = get_object_or_404(Poll.objects.select_related('group'), id=poll_id)
+        
+        # 1. Enforce community membership
+        if not poll.group.members.filter(id=request.user.id).exists():
+            messages.error(request, "You must join this community to participate in polls.")
+            return redirect('group_detail', group_id=poll.group.id)
+
         option_id = request.POST.get('option_id')
         if not option_id:
             messages.error(request, "You must select an option!")
             return redirect('group_detail', group_id=poll.group.id)
             
-        option = get_object_or_404(PollOption, id=option_id)
+        # 2. Strict validation: option must belong strictly to this poll
+        option = get_object_or_404(PollOption, id=option_id, poll=poll)
         
-        # Guard against zero-duplication voting
-        has_voted = PollVote.objects.filter(poll=poll, user=request.user).exists()
-        if has_voted:
-            # We can allow them to swap votes, so we delete old ones
+        # 3. Swap or record vote atomically
+        with transaction.atomic():
             PollVote.objects.filter(poll=poll, user=request.user).delete()
-            
-        PollVote.objects.create(poll=poll, option=option, user=request.user)
+            PollVote.objects.create(poll=poll, option=option, user=request.user)
+
         messages.success(request, "Your vote has been cast.")
         return redirect('group_detail', group_id=poll.group.id)

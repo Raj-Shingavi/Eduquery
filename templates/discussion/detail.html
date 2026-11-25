@@ -53,13 +53,17 @@
     <div class="glass-panel" style="margin-top: 40px;">
         <h4 style="margin-top: 0;">Add your answer</h4>
         {% if user.is_authenticated %}
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    {{ form.content }}
-                </div>
-                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Submit Answer</button>
-            </form>
+            {% if can_answer %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form.content }}
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Submit Answer</button>
+                </form>
+            {% else %}
+                <p style="color: var(--text-secondary);">Commenting on this doubt is restricted to community members and faculty.</p>
+            {% endif %}
         {% else %}
             <p>Please <a href="{% url 'login' %}" style="color: var(--accent-color);">login</a> to participate in the discussion.</p>
         {% endif %}
